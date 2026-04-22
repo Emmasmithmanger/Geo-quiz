@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>World Geography Quiz</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --card-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --primary: #22c55e;
+      --primary-dark: #16a34a;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+      color: var(--text);
+      min-height: 100%;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 760px;
+    }
+
+    .card {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .header {
+      padding: 24px 22px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.08), transparent);
+    }
+
+    .title {
+      margin: 0 0 8px;
+      font-size: clamp(1.7rem, 2.4vw, 2.3rem);
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.55;
+    }
+
+    .content {
+      padding: 22px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 14px 15px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #0b1220;
+      color: var(--text);
+      outline: none;
+      font-size: 1rem;
+    }
+
+    input[type="email"]:focus {
+      border-color: rgba(34, 197, 94, 0.65);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+    }
+
+    .note {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 14px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    .status {
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      border: 1px solid var(--border);
+      display: none;
+    }
+
+    .status.show { display: block; }
+    .status.info { background: rgba(59, 130, 246, 0.12); }
+    .status.success { background: rgba(34, 197, 94, 0.12); }
+    .status.warning { background: rgba(245, 158, 11, 0.12); }
+    .status.error { background: rgba(239, 68, 68, 0.12); }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      color: white;
+      background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn-secondary {
+      color: var(--text);
+      background: #182233;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.1);
+      color: #bbf7d0;
+      font-size: 0.92rem;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .hidden { display: none !important; }
+
+    .quiz-list {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .question {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .question-title {
+      margin: 0 0 12px;
+      font-size: 1.03rem;
+      line-height: 1.45;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #0b1220;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      cursor: pointer;
+      min-height: 48px;
+    }
+
+    .option input {
+      margin: 0;
+      transform: scale(1.15);
+      accent-color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .result-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .meta {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 12px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 560px) {
+      body { padding: 12px; }
+      .header, .content { padding: 18px; }
+      button { width: 100%; }
+      .actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card">
+      <header class="header">
+        <h1 class="title">World Geography Quiz</h1>
+        <p class="subtitle">Enter your email and allow location access to unlock the quiz.</p>
+      </header>
+
+      <div class="content">
+        <section id="gateSection" class="stack">
+          <div>
+            <label for="email">Email address</label>
+            <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+          </div>
+
+          <div class="note">
+            This quiz collects your email, browser/device details, and current location coordinates with accuracy info.
+            The browser will show a location consent popup. If location access is denied, the quiz stays locked.
+          </div>
+
+          <div id="status" class="status info"></div>
+          <div id="locationBadge" class="pill hidden">Location verified</div>
+
+          <div class="actions">
+            <button id="allowBtn" class="btn-primary" type="button">Allow Location & Start Quiz</button>
+            <button id="retryBtn" class="btn-secondary hidden" type="button">Try Again</button>
+          </div>
+        </section>
+
+        <section id="quizSection" class="hidden">
+          <form id="quizForm">
+            <div class="quiz-list" id="quizList"></div>
+            <div class="actions" style="margin-top:18px;">
+              <button id="submitQuizBtn" class="btn-primary" type="submit">Submit Quiz</button>
+            </div>
+          </form>
+          <div id="result" class="hidden"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const APPS_SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+    const QUESTIONS = [
+      {
+        id: 1,
+        question: "What is the largest desert in the world?",
+        options: ["Sahara Desert", "Arabian Desert", "Antarctic Desert", "Gobi Desert"],
+        answer: "Antarctic Desert"
+      },
+      {
+        id: 2,
+        question: "Which river flows through the city of Cairo?",
+        options: ["Amazon River", "Nile River", "Congo River", "Danube River"],
+        answer: "Nile River"
+      },
+      {
+        id: 3,
+        question: "What is the capital of Canada?",
+        options: ["Toronto", "Vancouver", "Montreal", "Ottawa"],
+        answer: "Ottawa"
+      },
+      {
+        id: 4,
+        question: "Mount Kilimanjaro is located in which country?",
+        options: ["Kenya", "Tanzania", "Uganda", "Ethiopia"],
+        answer: "Tanzania"
+      },
+      {
+        id: 5,
+        question: "Which continent has the most countries?",
+        options: ["Asia", "Europe", "South America", "Africa"],
+        answer: "Africa"
+      }
+    ];
+
+    const state = {
+      email: "",
+      location: null,
+      locationCapturedAt: null,
+      permission: "prompt"
+    };
+
+    const emailInput = document.getElementById("email");
+    const allowBtn = document.getElementById("allowBtn");
+    const retryBtn = document.getElementById("retryBtn");
+    const statusBox = document.getElementById("status");
+    const quizSection = document.getElementById("quizSection");
+    const gateSection = document.getElementById("gateSection");
+    const quizList = document.getElementById("quizList");
+    const quizForm = document.getElementById("quizForm");
+    const resultBox = document.getElementById("result");
+    const submitQuizBtn = document.getElementById("submitQuizBtn");
+    const locationBadge = document.getElementById("locationBadge");
+
+    function showStatus(message, type = "info") {
+      statusBox.textContent = message;
+      statusBox.className = `status show ${type}`;
+    }
+
+    function hideStatus() {
+      statusBox.className = "status info";
+      statusBox.textContent = "";
+    }
+
+    function validateEmail(value) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+    }
+
+    function renderQuiz() {
+      quizList.innerHTML = QUESTIONS.map((item, index) => {
+        const options = item.options.map((option, optionIndex) => `
+          <label class="option">
+            <input type="radio" name="q${item.id}" value="${escapeHtml(option)}" required />
+            <span>${escapeHtml(option)}</span>
+          </label>
+        `).join("");
+
+        return `
+          <article class="question">
+            <h3 class="question-title">${index + 1}. ${escapeHtml(item.question)}</h3>
+            <div class="options">${options}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function getPermissionState() {
+      if (!navigator.permissions || !navigator.permissions.query) {
+        return "unsupported";
+      }
+
+      try {
+        const result = await navigator.permissions.query({ name: "geolocation" });
+        return result.state;
+      } catch {
+        return "unsupported";
+      }
+    }
+
+    function getLocation() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("Geolocation is not supported on this browser/device."));
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => resolve(position),
+          (error) => reject(error),
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+          }
+        );
+      });
+    }
+
+    async function unlockQuiz() {
+      hideStatus();
+      state.email = emailInput.value.trim();
+
+      if (!validateEmail(state.email)) {
+        showStatus("Please enter a valid email address before starting the quiz.", "error");
+        return;
+      }
+
+      allowBtn.disabled = true;
+      retryBtn.classList.add("hidden");
+      showStatus("Requesting your location permission...", "info");
+
+      try {
+        state.permission = await getPermissionState();
+        const position = await getLocation();
+        state.location = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+          altitude: position.coords.altitude,
+          altitudeAccuracy: position.coords.altitudeAccuracy,
+          heading: position.coords.heading,
+          speed: position.coords.speed
+        };
+        state.locationCapturedAt = new Date().toISOString();
+
+        showStatus(`Location captured successfully. Accuracy: about ${Math.round(position.coords.accuracy)} meters.`, "success");
+        locationBadge.classList.remove("hidden");
+
+        setTimeout(() => {
+          gateSection.classList.add("hidden");
+          quizSection.classList.remove("hidden");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }, 600);
+      } catch (error) {
+        const message = mapLocationError(error);
+        showStatus(message, "error");
+        retryBtn.classList.remove("hidden");
+      } finally {
+        allowBtn.disabled = false;
+      }
+    }
+
+    function mapLocationError(error) {
+      if (!error) return "Could not read your location.";
+
+      if (typeof error.code === "number") {
+        switch (error.code) {
+          case 1:
+            return "Location permission was denied. You must allow location access to play this quiz.";
+          case 2:
+            return "Location information is unavailable right now. Please go outdoors or enable GPS/Wi‑Fi and try again.";
+          case 3:
+            return "Location request timed out. Please try again where signal/GPS is better.";
+          default:
+            return "Could not get your location. Please try again.";
+        }
+      }
+
+      return error.message || "Could not get your location.";
+    }
+
+    function collectAnswers() {
+      const answers = QUESTIONS.map((q) => {
+        const chosen = quizForm.querySelector(`input[name="q${q.id}"]:checked`);
+        return {
+          questionId: q.id,
+          question: q.question,
+          selectedAnswer: chosen ? chosen.value : null,
+          correctAnswer: q.answer,
+          isCorrect: chosen ? chosen.value === q.answer : false
+        };
+      });
+
+      const score = answers.filter((item) => item.isCorrect).length;
+      return { answers, score, total: QUESTIONS.length };
+    }
+
+    async function submitPayload(payload) {
+      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PASTE_YOUR")) {
+        console.warn("Apps Script URL missing. Payload not sent.", payload);
+        return { sent: false, reason: "missing_endpoint" };
+      }
+
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        return { sent: true };
+      } catch (error) {
+        console.error("Submission failed", error);
+        return { sent: false, reason: "network_error" };
+      }
+    }
+
+    quizForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (!state.location || !state.email) {
+        showStatus("Email and location are required before you can submit.", "error");
+        return;
+      }
+
+      submitQuizBtn.disabled = true;
+      const { answers, score, total } = collectAnswers();
+
+      const payload = {
+        submittedAt: new Date().toISOString(),
+        email: state.email,
+        locationCapturedAt: state.locationCapturedAt,
+        permissionState: state.permission,
+        location: state.location,
+        quiz: {
+          name: "World Geography Quiz",
+          score,
+          total,
+          answers
+        },
+        client: {
+          userAgent: navigator.userAgent,
+          language: navigator.language,
+          platform: navigator.platform,
+          screenWidth: window.screen.width,
+          screenHeight: window.screen.height,
+          viewportWidth: window.innerWidth,
+          viewportHeight: window.innerHeight,
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        }
+      };
+
+      const response = await submitPayload(payload);
+
+      resultBox.classList.remove("hidden");
+      resultBox.className = "result-box";
+      resultBox.innerHTML = `
+        <h3 style="margin:0 0 8px;">Quiz submitted</h3>
+        <div>Your score: <strong>${score} / ${total}</strong></div>
+        <div class="meta">
+          <div>Email: ${escapeHtml(state.email)}</div>
+          <div>Latitude: ${Number(state.location.latitude).toFixed(6)}</div>
+          <div>Longitude: ${Number(state.location.longitude).toFixed(6)}</div>
+          <div>Accuracy: about ${Math.round(state.location.accuracy)} meters</div>
+          <div>${response.sent ? "Submission was sent to your configured backend/sheet." : "Submission could not be sent because the backend URL is not configured or the request failed."}</div>
+        </div>
+        <p class="footer-note">You can now inspect the Google Sheet to confirm the entry.</p>
+      `;
+
+      submitQuizBtn.disabled = false;
+      quizForm.querySelectorAll("input").forEach((input) => input.disabled = true);
+    });
+
+    allowBtn.addEventListener("click", unlockQuiz);
+    retryBtn.addEventListener("click", unlockQuiz);
+
+    renderQuiz();
+  </script>
+</body>
+</html>
